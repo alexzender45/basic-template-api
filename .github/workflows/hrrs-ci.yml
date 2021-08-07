@@ -1,0 +1,49 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Archhub
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: run clean install
+      run: |
+        npm ci
+    - name: run test
+      run: |
+        npm test 
+      env:
+        CI: true
+        MONGODB_TEST_URI: ${{ secrets.MONGODB_TEST_URI }}
+        JWT_SECRETE_KEY: ${{ secrets.JWT_SECRETE_KEY }}
+        MAILGUN_APIKEY: ${{ secrets.MAILGUN_APIKEY }}
+        MAILGUN_DOMAIN: ${{ secrets.MAILGUN_DOMAIN }}
+        OTP_SECRET: ${{ secrets.OTP_SECRET }}
+    - name: run build
+      run: |
+        npm run build --if-present
+    - run: sudo apt-get update -qy
+    - run: sudo apt-get install -y ruby-dev
+    - run: sudo gem install dpl
+    - name: deploy to heroku
+      run: |
+        sudo dpl --provider=heroku --app=${{ secrets.HEROKU_APP_NAME }} --api-key=${{ secrets.HEROKU_API_KEY }}
