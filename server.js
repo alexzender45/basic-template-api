@@ -4,14 +4,15 @@ const cors = require("cors");
 const morgan = require("morgan");
 
 // Custom Dependencies
-require("./src/db/mongoose").db().then();
+//require("./src/db/mongoose").db().then();
 const { logger } = require("./src/utils/logger");
 const { PORT } = require("./src/core/config");
 
 // Routers
 const baseRouter = require("./src/router");
-const userRouter = require("./src/router/userRouter");
-const bankRouter = require("./src/router/bankRouter");
+const characterRouter = require("./src/router/characterRouter");
+const filmRouter = require("./src/router/filmRouter");
+const commentRouter = require("./src/router/commentRouter");
 
 // App Init
 const app = express();
@@ -24,9 +25,10 @@ app.use(morgan("tiny"));
 
 // Router Middleware
 app.use("/", baseRouter);
-app.use("/api", userRouter);
-app.use("/api", bankRouter);
+app.use("/api", characterRouter);
+app.use("/api", filmRouter);
+app.use("/api", commentRouter);
 
 app.listen(PORT, () =>
-  logger.info(`Ventmode Backend Service Started on port ${PORT}`)
+  logger.info(`Metacare Backend Service Started on port ${PORT}`)
 );
